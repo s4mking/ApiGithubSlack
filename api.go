@@ -37,7 +37,7 @@ func getenv(name string) string {
 func main() {
 	context := context.Background()
 	tokenService := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "c7f042ccfbb267fd46b6422d53cea58af29a4deb"},
+		&oauth2.Token{AccessToken: "voir notes"},
 	)
 	tokenClient := oauth2.NewClient(context, tokenService)
 
@@ -83,7 +83,7 @@ func main() {
 	}
 	//L'idée serait par la suite de faire des tests pour suivre l'avancée des projets sur github avec une liste de commandes à effectuer sur slack
 	//A faire : détecter des commandes spécifique spas juste le test d'entrée classique de texte voir aussi sur l'api de github ce qu'il est possible dee rajouter
-	Loop:
+Loop:
 	for {
 		select {
 		case msg := <-rtm.IncomingEvents:
