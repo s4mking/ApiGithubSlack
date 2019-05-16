@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/google/go-github/github"
 	"github.com/nlopes/slack"
@@ -37,7 +39,7 @@ func getenv(name string) string {
 func main() {
 	context := context.Background()
 	tokenService := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "voir notes"},
+		&oauth2.Token{AccessToken: "e632450f2dc84658dc3c323618c46c64f18e7796"},
 	)
 	tokenClient := oauth2.NewClient(context, tokenService)
 
@@ -57,13 +59,14 @@ func main() {
 		StarsCount:  *repo.StargazersCount,
 	}
 	var commitInfo []*github.RepositoryCommit
-	commitInfo, _, err = client.Repositories.ListCommits(context, "s4mking", "Gazooy", nil)
 
+	commitInfo, _, err = client.Repositories.ListCommits(context, "s4mking", "Gazooy", nil)
 	if err != nil {
 		fmt.Printf("Problem in commit information %v\n", err)
 		os.Exit(1)
 	}
 	pack = pack
+
 	var lastMessage = *commitInfo[0].Commit.Message
 	var lastAutor = *commitInfo[0].Commit.Author.Name
 	token := getenv("SLACKTOKEN")
@@ -97,8 +100,15 @@ Loop:
 				// info := rtm.GetInfo()
 				// prefix := fmt.Sprintf("<@%s> ", info.User.ID)
 				// if ev.User != info.User.ID && strings.HasPrefix(ev.Text, prefix) {
-				rtm.SendMessage(rtm.NewOutgoingMessage(lastMessage+" "+lastAutor, ev.Channel))
-				// }
+
+				text := ev.Text
+				text = strings.TrimSpace(text)
+				text = strings.ToLower(text)
+				matched, _ := regexp.MatchString("github", text)
+
+				if matched {
+					rtm.SendMessage(rtm.NewOutgoingMessage(lastMessage+" "+lastAutor, ev.Channel))
+				}
 
 			case *slack.RTMError:
 				fmt.Printf("Error: %s\n", ev.Error())
